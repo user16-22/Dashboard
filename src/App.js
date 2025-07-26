@@ -1,23 +1,31 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import Dashboardhome from './components/Dashboardhome';
+import AddRestaurant from './components/AddRestaurant';
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import EventsPage from './components/EventsPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "linear-gradient(135deg, #176B6B, #253C5E)",
+        color: "#fff",
+        margin: 0,
+        padding: 0
+      }}
+    >
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboardhome />} />
+          <Route path="AddRestaurant" element={<AddRestaurant />} />
+          <Route path="event" element={<EventsPage />} />
+        </Route>
+      </Routes>
     </div>
   );
 }
