@@ -1,239 +1,413 @@
-import React, { useState } from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
 
-const AddRestaurant = () => {
+
+import React, { useState } from "react";
+
+export default function Addrestaurant() {
   const [formData, setFormData] = useState({
     name: "",
-    owner: "",
-    contact: "",
-    email: "",
-    address: "",
     city: "",
-    state: "",
-    zip: "",
-    capacity: "",
-    cuisine: "",
-    costPerPerson: "",
+    seating: "",
+    cuisineType: "",
+    avgCost: "",
     amenities: [],
-    images: null,
-    active: true,
+    image: "", // Base64 string will be stored here
   });
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    if (type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        amenities: checked
-          ? [...prev.amenities, value]
-          : prev.amenities.filter((a) => a !== value),
-      }));
-    } else if (type === "file") {
-      setFormData({ ...formData, images: e.target.files });
-    } else {
-      setFormData({ ...formData, [name]: value });
+  const handleAmenitiesChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => {
+      if (checked) {
+        return { ...prev, amenities: [...prev.amenities, value] };
+      } else {
+        return { ...prev, amenities: prev.amenities.filter((a) => a !== value) };
+      }
+    });
+  };
+
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData((prev) => ({ ...prev, image: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log("Form Data before submit:", formData);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/restaurants/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Restaurant added successfully!");
+        console.log("Response:", data);
+      } else {
+        alert("Failed to add restaurant: " + data.error);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Restaurant Data:", formData);
-    alert("Restaurant Added Successfully!");
-  };
-
   return (
-    <div style={{ padding: "20px", color: "#fff" }}>
-      <h2 style={{ marginBottom: "20px" }}>Add New Restaurant</h2>
-      <Form onSubmit={handleSubmit}>
-        <Row>
-          {/* Restaurant Name */}
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Restaurant Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                placeholder="Enter restaurant name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
-          </Col>
+    <div
+      style={{
+        maxWidth: "500px",
+        margin: "40px auto",
+        padding: "20px",
+        border: "1px solid #cccccc",
+        borderRadius: "10px",
+        backgroundColor: "#5a59590f",
+        boxShadow: "0px 4px 8px rgba(255, 255, 255, 0.1)",
+      }}
+    >
+      <h2 style={{ textAlign: "center", color: "#ffffffff", marginBottom: "20px" }}>
+        Add Restaurant
+      </h2>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+        {/* Restaurant Name */}
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Restaurant Name:</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+          style={{
+            padding: "8px",
+            marginBottom: "15px",
+            borderRadius: "5px",
+            border: "1px solid #000000ff",
+          }}
+        />
 
-          {/* Owner Name */}
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Owner/Manager</Form.Label>
-              <Form.Control
-                type="text"
-                name="owner"
-                placeholder="Enter owner's name"
-                value={formData.owner}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        {/* City */}
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>City:</label>
+        <input
+          type="text"
+          name="city"
+          value={formData.city}
+          onChange={handleChange}
+          required
+          style={{
+            padding: "8px",
+            marginBottom: "15px",
+            borderRadius: "5px",
+            border: "1px solid #000000ff",
+          }}
+        />
 
-        {/* Contact and Email */}
-        <Row>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Contact Number</Form.Label>
-              <Form.Control
-                type="tel"
-                name="contact"
-                placeholder="Enter phone number"
-                value={formData.contact}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Email Address</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                placeholder="Enter email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        {/* Seating */}
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Seating Capacity:</label>
+        <input
+          type="number"
+          name="seating"
+          value={formData.seating}
+          onChange={handleChange}
+          required
+          style={{
+            padding: "8px",
+            marginBottom: "15px",
+            borderRadius: "5px",
+            border: "1px solid #000000ff",
+          }}
+        />
 
-        {/* Address */}
-        <Form.Group className="mb-3">
-          <Form.Label>Address</Form.Label>
-          <Form.Control
-            as="textarea"
-            name="address"
-            rows={2}
-            placeholder="Enter full address"
-            value={formData.address}
-            onChange={handleChange}
-          />
-        </Form.Group>
+        {/* Cuisine Type */}
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Cuisine Type:</label>
+        <input
+          type="text"
+          name="cuisineType"
+          value={formData.cuisineType}
+          onChange={handleChange}
+          required
+          style={{
+            padding: "8px",
+            marginBottom: "15px",
+            borderRadius: "5px",
+            border: "1px solid #000000ff",
+          }}
+        />
 
-        {/* City, State, ZIP */}
-        <Row>
-          <Col md={4}>
-            <Form.Group className="mb-3">
-              <Form.Label>City</Form.Label>
-              <Form.Control
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group className="mb-3">
-              <Form.Label>State</Form.Label>
-              <Form.Control
-                type="text"
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group className="mb-3">
-              <Form.Label>ZIP Code</Form.Label>
-              <Form.Control
-                type="text"
-                name="zip"
-                value={formData.zip}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        {/* Capacity & Cuisine */}
-        <Row>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Seating/Event Capacity</Form.Label>
-              <Form.Control
-                type="number"
-                name="capacity"
-                value={formData.capacity}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Cuisine Type</Form.Label>
-              <Form.Control
-                type="text"
-                name="cuisine"
-                placeholder="E.g., Indian, Continental"
-                value={formData.cuisine}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        {/* Cost per person */}
-        <Form.Group className="mb-3">
-          <Form.Label>Average Cost per Person (₹)</Form.Label>
-          <Form.Control
-            type="number"
-            name="costPerPerson"
-            value={formData.costPerPerson}
-            onChange={handleChange}
-          />
-        </Form.Group>
+        {/* Average Cost */}
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Average Cost per Person:</label>
+        <input
+          type="number"
+          name="avgCost"
+          value={formData.avgCost}
+          onChange={handleChange}
+          required
+          style={{
+            padding: "8px",
+            marginBottom: "15px",
+            borderRadius: "5px",
+            border: "1px solid #000000ff",
+          }}
+        />
 
         {/* Amenities */}
-        <Form.Group className="mb-3">
-          <Form.Label>Amenities</Form.Label>
-          <div>
-            {["Wi-Fi", "Parking", "Outdoor Seating", "Bar", "Live Music"].map((amenity) => (
-              <Form.Check
-                key={amenity}
-                inline
-                type="checkbox"
-                label={amenity}
-                value={amenity}
-                onChange={handleChange}
-              />
-            ))}
-          </div>
-        </Form.Group>
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Amenities:</label>
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ marginRight: "10px" }}>
+            <input type="checkbox" value="WiFi" onChange={handleAmenitiesChange} /> WiFi
+          </label>
+          <label style={{ marginRight: "10px" }}>
+            <input type="checkbox" value="Parking" onChange={handleAmenitiesChange} /> Parking
+          </label>
+          <label>
+            <input type="checkbox" value="Outdoor Seating" onChange={handleAmenitiesChange} /> Outdoor Seating
+          </label>
+        </div>
 
-        {/* Upload Images */}
-        <Form.Group className="mb-3">
-          <Form.Label>Upload Images</Form.Label>
-          <Form.Control type="file" multiple name="images" onChange={handleChange} />
-        </Form.Group>
+        {/* Upload Image */}
+        <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Upload Image:</label>
+        <input type="file" accept="image/*" onChange={handleImageChange} />
 
-        {/* Active Toggle */}
-        <Form.Group className="mb-3">
-          <Form.Check
-            type="switch"
-            id="activeSwitch"
-            label="Active"
-            checked={formData.active}
-            onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-          />
-        </Form.Group>
-
-        {/* Submit Button */}
-        <Button variant="primary" type="submit">
-          Add Restaurant
-        </Button>
-      </Form>
+        {/* Submit */}
+        <button
+          type="submit"
+          style={{
+            padding: "10px",
+            backgroundColor: "#4CAF50",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "16px",
+          }}
+        >
+          Submit
+        </button>
+      </form>
     </div>
   );
-};
+}
 
-export default AddRestaurant;
+
+
+
+// import React, { useState } from "react";
+
+// export default function Addrestaurant() {
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     city: "",
+//     seating: "",
+//     cuisineType: "",
+//     avgCost: "",
+//     amenities: [],
+//     image: null,
+//   });
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData((prev) => ({ ...prev, [name]: value }));
+//   };
+
+//   const handleAmenitiesChange = (e) => {
+//     const { value, checked } = e.target;
+//     setFormData((prev) => {
+//       if (checked) {
+//         return { ...prev, amenities: [...prev.amenities, value] };
+//       } else {
+//         return { ...prev, amenities: prev.amenities.filter((a) => a !== value) };
+//       }
+//     });
+//   };
+
+//   const handleImageChange = (e) => {
+//     setFormData((prev) => ({ ...prev, image: e.target.files[0] }));
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     try {
+//       const formDataToSend = new FormData();
+//       formDataToSend.append("name", formData.name);
+//       formDataToSend.append("city", formData.city);
+//       formDataToSend.append("seating", formData.seating);
+//       formDataToSend.append("cuisineType", formData.cuisineType);
+//       formDataToSend.append("avgCost", formData.avgCost);
+
+//       // Add amenities (multiple)
+//       formData.amenities.forEach((amenity) =>
+//         formDataToSend.append("amenities", amenity)
+//       );
+
+//       // Add image file
+//       if (formData.image) {
+//         formDataToSend.append("image", formData.image);
+//       }
+
+//       const res = await fetch("http://localhost:5000/api/restaurants/add", {  // ✅ Changed
+//         method: "POST",
+//         body: formDataToSend,
+//       });
+
+//       const data = await res.json();
+//       if (res.ok) {
+//         alert("Restaurant added successfully!");
+//         console.log("Response:", data);
+//       } else {
+//         alert("Failed to add restaurant: " + data.error);
+//       }
+//     } catch (error) {
+//       console.error("Error submitting form:", error);
+//       alert("Something went wrong!");
+//     }
+//   };
+
+//   return (
+//     <div
+//       style={{
+//         maxWidth: "500px",
+//         margin: "40px auto",
+//         padding: "20px",
+//         border: "1px solid #cccccc",
+//         borderRadius: "10px",
+//         backgroundColor: "#5a59590f",
+//         boxShadow: "0px 4px 8px rgba(255, 255, 255, 0.1)",
+//       }}
+//     >
+//       <h2 style={{ textAlign: "center", color: "#ffffffff", marginBottom: "20px" }}>
+//         Add Restaurant
+//       </h2>
+//       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+//         {/* Restaurant Name */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Restaurant Name:</label>
+//         <input
+//           type="text"
+//           name="name"
+//           value={formData.name}
+//           onChange={handleChange}
+//           required
+//           style={{
+//             padding: "8px",
+//             marginBottom: "15px",
+//             borderRadius: "5px",
+//             border: "1px solid #000000ff",
+//           }}
+//         />
+
+//         {/* City */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>City:</label>
+//         <input
+//           type="text"
+//           name="city"
+//           value={formData.city}
+//           onChange={handleChange}
+//           required
+//           style={{
+//             padding: "8px",
+//             marginBottom: "15px",
+//             borderRadius: "5px",
+//             border: "1px solid #000000ff",
+//           }}
+//         />
+
+//         {/* Seating */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Seating Capacity:</label>
+//         <input
+//           type="number"
+//           name="seating"
+//           value={formData.seating}
+//           onChange={handleChange}
+//           required
+//           style={{
+//             padding: "8px",
+//             marginBottom: "15px",
+//             borderRadius: "5px",
+//             border: "1px solid #000000ff",
+//           }}
+//         />
+
+//         {/* Cuisine Type */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Cuisine Type:</label>
+//         <input
+//           type="text"
+//           name="cuisineType"
+//           value={formData.cuisineType}
+//           onChange={handleChange}
+//           required
+//           style={{
+//             padding: "8px",
+//             marginBottom: "15px",
+//             borderRadius: "5px",
+//             border: "1px solid #000000ff",
+//           }}
+//         />
+
+//         {/* Average Cost */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Average Cost per Person:</label>
+//         <input
+//           type="number"
+//           name="avgCost"
+//           value={formData.avgCost}
+//           onChange={handleChange}
+//           required
+//           style={{
+//             padding: "8px",
+//             marginBottom: "15px",
+//             borderRadius: "5px",
+//             border: "1px solid #000000ff",
+//           }}
+//         />
+
+//         {/* Amenities */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Amenities:</label>
+//         <div style={{ marginBottom: "15px" }}>
+//           <label style={{ marginRight: "10px" }}>
+//             <input type="checkbox" value="WiFi" onChange={handleAmenitiesChange} /> WiFi
+//           </label>
+//           <label style={{ marginRight: "10px" }}>
+//             <input type="checkbox" value="Parking" onChange={handleAmenitiesChange} /> Parking
+//           </label>
+//           <label>
+//             <input type="checkbox" value="Outdoor Seating" onChange={handleAmenitiesChange} /> Outdoor Seating
+//           </label>
+//         </div>
+
+//         {/* Upload Image */}
+//         <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Upload Image:</label>
+//         <input
+//           type="file"
+//           accept="image/*"
+//           onChange={handleImageChange}
+//           style={{ marginBottom: "20px" }}
+//         />
+
+//         {/* Submit */}
+//         <button
+//           type="submit"
+//           style={{
+//             padding: "10px",
+//             backgroundColor: "#4CAF50",
+//             color: "#fff",
+//             border: "none",
+//             borderRadius: "5px",
+//             cursor: "pointer",
+//             fontSize: "16px",
+//           }}
+//         >
+//           Submit
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }

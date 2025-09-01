@@ -29,15 +29,7 @@ const Header = () => {
       {/* Responsive Toggle */}
       <Navbar.Toggle aria-controls="navbar-nav" />
       <Navbar.Collapse id="navbar-nav" className="justify-content-between">
-        {/* Search Bar */}
-        <Form className="d-flex mx-auto" style={{ maxWidth: "400px", width: "100%" }}>
-          <FormControl
-            type="search"
-            placeholder="Search events..."
-            className="me-2"
-          />
-          <Button variant="primary">Search</Button>
-        </Form>
+       
 
         {/* Right-side icons */}
         <Nav>
